@@ -18,6 +18,20 @@ The Playwright step downloads Chromium once for Vitest’s browser project (comp
 
 Edit `.env` with `DATABASE_URL`, `ORIGIN`, and `BETTER_AUTH_SECRET`.
 
+## Git hooks
+
+[Husky](https://github.com/typicode/husky):
+
+- **pre-commit:** `lint-staged`, then `bun check`
+- **pre-push:** `lint` → `check` → `build` → `test` (see [`.husky/pre-push`](.husky/pre-push))
+- **commit-msg:** `commitlint` (conventional commits)
+
+## CI
+
+[GitHub Actions](https://github.com/features/actions):
+
+- **workflow:** `bun install --frozen-lockfile` → `lint` → `check` → `build` → Playwright → `test` (see [`.github/workflows/ci.yml`](.github/workflows/ci.yml))
+
 ## Commands
 
 | Task                     | Command          |
