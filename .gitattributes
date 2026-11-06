@@ -1,0 +1,4 @@
+* text=auto eol=lf
+
+# Lockfiles: GitHub linguist stats + suppress textual diffs
+bun.lock linguist-generated=true -diff
