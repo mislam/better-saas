@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
+	import { resolve } from "$app/paths"
 
-	const demos = [{ name: 'better-auth', href: resolve('/demo/better-auth') }];
+	const demos = [{ name: "better-auth", href: resolve("/demo/better-auth") }]
 </script>
 
 <!--
@@ -20,7 +20,7 @@
 		{/each}
 	</ul>
 
-	<a class="home" href={resolve('/')}>home</a>
+	<a class="home" href={resolve("/")}>home</a>
 </div>
 
 <style>

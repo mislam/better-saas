@@ -1,10 +1,12 @@
 <script lang="ts">
-	import DemoLinks from './demo/DemoLinks.svelte';
-	import './layout.css';
-	import favicon from '#lib/assets/favicon.svg';
-	import type { LayoutProps } from './$types';
+	import "./layout.css"
 
-	let { children }: LayoutProps = $props();
+	import favicon from "#lib/assets/favicon.svg"
+
+	import type { LayoutProps } from "./$types"
+	import DemoLinks from "./demo/DemoLinks.svelte"
+
+	let { children }: LayoutProps = $props()
 </script>
 
 <svelte:head>
