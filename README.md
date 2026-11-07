@@ -1,6 +1,6 @@
 # README
 
-SvelteKit app with TypeScript, Tailwind, Drizzle (Neon), Better Auth, and the Vercel adapter. Package manager: **Bun**.
+SvelteKit app with TypeScript, Tailwind, Drizzle (Neon), Better Auth, and the Vercel adapter.
 
 ## Requirements
 
@@ -11,12 +11,9 @@ SvelteKit app with TypeScript, Tailwind, Drizzle (Neon), Better Auth, and the Ve
 ```sh
 bun install
 cp .env.example .env
+bun auth:secret --write
 bunx playwright install chromium
 ```
-
-The Playwright step downloads Chromium once for Vitest’s browser project (component tests).
-
-Edit `.env` with `DATABASE_URL`, `ORIGIN`, and `BETTER_AUTH_SECRET`.
 
 ## Git hooks
 
@@ -28,9 +25,7 @@ Edit `.env` with `DATABASE_URL`, `ORIGIN`, and `BETTER_AUTH_SECRET`.
 
 ## CI
 
-[GitHub Actions](https://github.com/features/actions):
-
-- **workflow:** `bun install --frozen-lockfile` → `lint` → `check` → `build` → Playwright → `test` (see [`.github/workflows/ci.yml`](.github/workflows/ci.yml))
+GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) mirrors pre-push (plus Playwright in CI).
 
 ## Commands
 

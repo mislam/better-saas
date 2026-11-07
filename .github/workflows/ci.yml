@@ -19,11 +19,16 @@ jobs:
         with:
           bun-version: 1.4.4
 
+      - name: Prepare env
+        run: |
+          cp .env.example .env
+          bun auth:secret --write
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
       - name: Lint
-        run: bun run lint
+        run: bun lint
 
       - name: Check
         run: bun check
