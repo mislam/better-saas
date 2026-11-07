@@ -22,6 +22,12 @@ const config = {
 				printWidth: 999,
 			},
 		},
+		{
+			files: "*.mdc",
+			options: {
+				parser: "markdown",
+			},
+		},
 	],
 	tailwindStylesheet: "./src/routes/layout.css",
 }

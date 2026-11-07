@@ -1,0 +1,32 @@
+---
+description: Branch / PR review — diff vs default branch, merge readiness, glance verdict
+alwaysApply: false
+---
+
+# Branch / PR review
+
+Apply when the user says **review branch**, **review PR**, or similar. Include a Conventional Commits squash or merge message when ready (unless they say otherwise).
+
+Diff vs the default branch (`main`): merge-base through `HEAD`, plus staged and unstaged work unless they ask for committed-only. Do not merge, push, or open PRs unless asked.
+
+## Purpose
+
+Merge gate. **Same five criteria** and the same **Before the glance** / **Glance** steps as [`review-staged.mdc`](review-staged.mdc), applied to the **full branch** (how it will land), not one commit.
+
+| Criterion       | Staged review                | This review                                                                                |
+| --------------- | ---------------------------- | ------------------------------------------------------------------------------------------ |
+| Correctness     | This commit vs session + Now | Feature as it will land on `main`                                                          |
+| Design fit      | Approach in the staged files | Fit across the branch; [`docs/engineering.md`](docs/engineering.md); no drive-by structure |
+| Test quality    | Tests for this commit        | Suite covers merged behavior, including edges                                              |
+| Impact & risk   | This commit                  | Branch: auth, env, schema, deploy                                                          |
+| Scope & clarity | One commit                   | One reviewable PR; split if mixed                                                          |
+
+## Merge-only
+
+1. **CI** — Same as [`.github/workflows/ci.yml`](.github/workflows/ci.yml): `bun lint`, `bun check`, `bun run build`, and `bun run test` when the branch touches app code, config, lockfile, or CI. **🔴** if any fails. Docs-only or rules-only: note that gates were skipped.
+2. **Breaking changes** — Route paths, auth or session shape, env vars, or schema that a deployed app would not understand. Call out under impact and risk.
+3. **Milestone ship** — If the branch completes every **Now** checkbox, follow [`changelog.mdc`](changelog.mdc). Shipped behavior with an open **Now** box is a merge **🔴**.
+
+Use **Before the glance** and **Glance** from [`review-staged.mdc`](review-staged.mdc) (verdict headings become **Ready to merge** variants).
+
+Verdict headings: `## Ready to merge`, `## Ready to merge with notes`, `## Not ready to merge` (same **🟢** / **🟡** / **🔴** rules). After the write-up: blockers (if any) and a PR title plus squash message, or why not ready.

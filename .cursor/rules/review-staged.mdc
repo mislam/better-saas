@@ -1,0 +1,60 @@
+---
+description: Staged review — cached diff, checklist, glance verdict, commit message
+alwaysApply: false
+---
+
+# Staged review
+
+Apply when the user says **review staged**, **pre-commit review**, or similar. Include a Conventional Commits message when ready (unless they say otherwise).
+
+Use `git status` and `git diff --cached` only. **Never** `git add` or other mutating git commands — see [conventions.mdc](conventions.mdc). Conversation history is intent (later messages win). If nothing is staged, say so and offer to summarize `git diff` (unstaged) instead.
+
+## Purpose
+
+Gate before commit: staged work matches the session ask and [Now](docs/roadmap.md#now). **Stance:** cautious; staged diff is what would land. Skip style nits covered by lint. Tiny one-liner: light pass.
+
+## Criteria
+
+Same five, scoped to **this commit** (staged), not the whole branch. Branch-wide review: [`review-pr.mdc`](review-pr.mdc).
+
+1. **Correctness** — Session ask + **Now**; regressions; partial delivery or drift. Intended behavior goes in **Summary** only.
+2. **Design fit** — Fits SvelteKit routes, `src/lib/server/`, and [`docs/engineering.md`](docs/engineering.md) (Neon Pool, Better Auth, Drizzle). No dead code or leftovers.
+3. **Test quality** — Behavior proved where practical (`bun run test`), or a short reason tests are deferred.
+4. **Impact & risk** — Auth, env, `DATABASE_URL`, sessions, Vercel adapter. Secrets in the diff are a blocker.
+5. **Scope & clarity** — One focused commit. Docs decision: update, or leave because existing docs already match. All **Now** boxes `[x]` but no changelog ship → **🔴** ([`changelog.mdc`](changelog.mdc)).
+
+## Also
+
+- **Tooling** — When the staged diff touches `src/`, `vite.config.ts`, `package.json`, the lockfile, or CI: run `bun check` (types). Run `bun lint` when style or lint config changed. Run `bun run test` when behavior or tests changed. Run `bun run build` when SvelteKit, Vite, or adapter config changed. **🔴** if a required gate still fails. Docs-only or rules-only: one line that gates were skipped. No `git add` after fixes.
+- **Docs** — Update [`README.md`](README.md), [`docs/roadmap.md`](docs/roadmap.md) (**Now**), or [`docs/engineering.md`](docs/engineering.md) when setup or those contracts would mislead. Leave them when already aligned.
+- **Commit message** — when no criterion is **🔴**, suggest one per [`conventions.mdc`](conventions.mdc). Read recent bodies with `git log`, not subjects alone. If not ready, say why.
+
+| Situation                | Also check                                                                |
+| ------------------------ | ------------------------------------------------------------------------- |
+| Many session refinements | Last ask wins over earlier assumptions                                    |
+| Svelte / SvelteKit       | [AGENTS.md](AGENTS.md) MCP steps and [`.cursor/skills/`](.cursor/skills/) |
+| Auth, schema, or env     | [`docs/engineering.md`](docs/engineering.md) database and auth contracts  |
+| Tiny fix                 | Light pass                                                                |
+
+## Before the glance
+
+- **Fix now** — clear mistake inside this change (wording drift, broken link, files in the diff disagreeing, same-slice doc or tooling gap). Edit the working tree; do not stage. Judge that tree. Say what changed and that they must re-stage.
+- **Leave it** — tradeoff, preference, or outside this change. **🟡** if they can still commit, **🔴** if they should not.
+
+## Glance
+
+No emoji on the verdict heading. Criteria are one line each, icon first, no bullets. Copy this shape, including `<br>`:
+
+```
+## Ready to commit
+
+🟢 Correctness<br>
+🟢 Design fit<br>
+🟢 Test quality<br>
+🟢 Impact & risk<br>
+🟢 Scope & clarity
+```
+
+**🟢** pass, **🟡** non-blocking note, **🔴** blocker. Any **🔴** → `## Not ready to commit`. Else any **🟡** → `## Ready to commit with notes`. Else `## Ready to commit`.
+
+Then `## Summary` (1–2 sentences: ask and what the staged change does). Then `## Correctness`, `## Design fit`, `## Test quality`, `## Impact & risk`, `## Scope & clarity` — no emoji in those headings. A **🟢** section is one sentence. A **🟡** or **🔴** section starts with the note. **Scope & clarity** includes the docs decision. End with blockers (if any) and a commit message, or why not ready.

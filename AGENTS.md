@@ -1,31 +1,47 @@
-## Project Configuration
+# Agent instructions
 
-- **Language**: TypeScript
-- **Package Manager**: bun
-- **Add-ons**: prettier, eslint, vitest, tailwindcss, sveltekit-adapter, drizzle, better-auth, ai-tools
+Humans: [`README.md`](README.md) (setup, commands, hooks, CI). This file is for **Cursor / coding agents** only.
 
----
+What this repo is: [`README.md`](README.md). Follow that. Keep work scoped to [**Now**](docs/roadmap.md#now) unless the user asks for more.
 
-You are able to use the Svelte MCP server, where you have access to comprehensive Svelte 5 and SvelteKit documentation. Here's how to use the available tools effectively:
+## Working context
 
-## Available Svelte MCP Tools:
+- **Active work:** [`docs/roadmap.md#now`](docs/roadmap.md#now) — one milestone at a time unless the user asks otherwise
+- **Upcoming / Later:** [`docs/roadmap.md`](docs/roadmap.md)
+- **Shipped milestones:** [`CHANGELOG.md`](CHANGELOG.md)
+- **Stack, layout, database:** [`docs/engineering.md`](docs/engineering.md)
+- **File and folder names:** lowercase; kebab-case for multi-word paths — [`.cursor/rules/conventions.mdc`](.cursor/rules/conventions.mdc) ([Paths and file names](.cursor/rules/conventions.mdc#paths-and-file-names))
 
-### 1. list-sections
+## Agent policy
 
-Use this FIRST to discover all available documentation sections. Returns a structured list with titles, use_cases, and paths.
-When asked about Svelte or SvelteKit topics, ALWAYS use this tool at the start of the chat to find relevant sections.
+- **Git:** **read-only always** for agents — no `git add`, `git restore`, `git commit`, etc. unless the user explicitly requests that command in the current message. Staging is manual. Details: [`.cursor/rules/conventions.mdc`](.cursor/rules/conventions.mdc)
+- **Secrets:** never read `.env` unless asked; prefer `.env.example`
+- **Tests:** `bun run test` (Vitest). `bun test` is Bun’s runner
+- **Blocking gates:** pre-commit (`lint-staged` + `bun check`), pre-push (`bun lint`, `bun check`, `bun run build`, `bun run test`), commitlint, CI `lint` + `check` + `build` + `test` — [README](README.md) ([Commands](README.md#commands), [Git hooks](README.md#git-hooks), [CI](README.md#ci))
 
-### 2. get-documentation
+`bun check` is typecheck only. Lint and format are `bun lint` / `bun lint:fix`.
 
-Retrieves full documentation content for specific sections. Accepts single or multiple sections.
-After calling the list-sections tool, you MUST analyze the returned documentation sections (especially the use_cases field) and then use the get-documentation tool to fetch ALL documentation sections that are relevant for the user's task.
+## Reviews (advisory — not a git hook)
 
-### 3. svelte-autofixer
+| Trigger                | Rule                                                                 |
+| ---------------------- | -------------------------------------------------------------------- |
+| **Review staged**      | [`.cursor/rules/review-staged.mdc`](.cursor/rules/review-staged.mdc) |
+| **Review branch** / PR | [`.cursor/rules/review-pr.mdc`](.cursor/rules/review-pr.mdc)         |
+| **Ship milestone**     | [`.cursor/rules/changelog.mdc`](.cursor/rules/changelog.mdc)         |
 
-Analyzes Svelte code and returns issues and suggestions.
-You MUST use this tool whenever writing Svelte code before sending it to the user. Keep calling it until no issues or suggestions are returned.
+Natural language is enough. A fully checked [**Now**](docs/roadmap.md#now) ships via [`.cursor/rules/changelog.mdc`](.cursor/rules/changelog.mdc) in the same turn.
 
-### 4. playground-link
+## Svelte
 
-Generates a Svelte Playground link with the provided code.
-After completing the code, ask the user if they want a playground link. Only call this tool after user confirmation and NEVER if code was written to files in their project.
+### Svelte MCP
+
+Config: [`.cursor/mcp.json`](.cursor/mcp.json).
+
+When editing Svelte or SvelteKit:
+
+1. **list-sections** — discover docs (use first).
+2. **get-documentation** — fetch relevant sections.
+3. **svelte-autofixer** — run on Svelte before finishing; repeat until clean.
+4. **playground-link** — only after the user confirms; never for code committed to this repo.
+
+Skills: [`.cursor/skills/`](.cursor/skills/) (`svelte-core-bestpractices`, `svelte-code-writer`). Prefer the **svelte-file-editor** subagent for component work when available.

@@ -1,0 +1,23 @@
+---
+description: Ship a milestone — CHANGELOG Shipped entry and advance docs/roadmap.md Now
+alwaysApply: false
+---
+
+# Changelog (milestone ship)
+
+**Scope:** Engineering milestones only. Routine commits do **not** get **Shipped** entries.
+
+**Source of truth:** checklist under [Now](docs/roadmap.md#now) in `docs/roadmap.md`.
+
+## When to run
+
+Apply when the user says **ship milestone**, **update changelog**, **complete M#**, **ship**, or similar.
+
+**Agents:** When every **Now** checkbox is `[x]`, run this in the **same turn** (before you say the milestone is done)—including when **review staged** / **review branch** catches a finished **Now** without CHANGELOG / advanced **Now** (fix in the working tree; user re-stages).
+
+Otherwise do not edit `CHANGELOG.md`.
+
+## What to write (same commit or PR as the milestone work)
+
+1. **`CHANGELOG.md`** — Under **Shipped**, add `### MN — …` (short form, newest first). Bullets match the completed **Now** checklist.
+2. **`docs/roadmap.md`** — Replace **Now** with the next milestone from **Upcoming**.

@@ -1,0 +1,57 @@
+---
+description: Tooling, commits, secrets, and git workflow
+alwaysApply: true
+---
+
+# Conventions
+
+## Tooling
+
+- Package manager: **Bun** ([`packageManager`](package.json) in `package.json`)
+- Format: `bun run format` (Prettier — tabs, no semis, double quotes, trailing commas, 100 cols)
+- Lint: `bun lint` / `bun lint:fix` (ESLint + import sort + Prettier check)
+- Types: `bun check` (`svelte-check` only — lint and tests are separate)
+- Tests: `bun run test` (Vitest). `bun test` is Bun’s runner
+- Build: `bun run build`
+- Do not hand-format differently from Prettier/ESLint output
+
+## Paths and file names
+
+- **Directories:** lowercase; multi-word segments use **kebab-case** (`src/lib/server/db/`).
+- **Source files** (`src/`): lowercase; multi-word names use **kebab-case** (`neon-config.ts`). Single-word names stay one token (`schema.ts`).
+- **Route files** keep SvelteKit names (`+page.svelte`, `+layout.server.ts`, `+page.server.ts`).
+- **Exports** stay normal TypeScript (`camelCase` / `PascalCase`); the file name does not have to match the export.
+
+## Markdown
+
+- File links: backticks on the label only — [`README.md`](README.md).
+- Cursor rules under `.cursor/rules/*.mdc` use the Markdown parser in [`prettier.config.js`](prettier.config.js); pre-commit formats them with Prettier via [`lint-staged.config.js`](lint-staged.config.js).
+
+## Secrets
+
+- Never read `.env` unless the user explicitly asks in the current request
+- Prefer `.env.example` for defaults
+
+## Commit messages
+
+When the user asks for a commit message, output **text only** — do not stage or commit unless they ask.
+
+**Conventional Commits** — `type: summary` or `type(scope): summary`. Types: `feat`, `fix`, `chore`, `docs`, `ci`, `build`, `refactor`, `test`, `style`, `perf`. Imperative, lowercase summary, no trailing period. Must pass commitlint.
+
+**Body:**
+
+- One change: subject line only. No second line.
+- More than one change: blank line, then `- ` bullets. Do not write the body as prose sentences.
+- Each bullet is an imperative sentence.
+- Omit bookkeeping that only records the commit. Do not mention changelog entries, advancing **Now**, or similar. Bullets describe the behavior.
+
+## Git
+
+**Agents: git is read-only.** Never run commands that change the index, working tree via git, refs, or remotes — even to “help” before a review or commit.
+
+- **Allowed:** `git status`, `git diff`, `git diff --cached`, `git log`, `git show`, `git branch` (list), and similar **read-only** inspection
+- **Never (unless the user’s message explicitly requests that exact command):** `git add`, `git restore`, `git reset`, `git commit`, `git push`, `git pull`, `git merge`, `git rebase`, `git checkout`, `git switch`, `git stash`, `git cherry-pick`, and any other mutating git subcommand
+
+**Staging is the user’s job.** After editing files, report what changed; do not `git add` to sync the index. “Review staged” means review what is **already** staged — not stage files for the user.
+
+Commit messages: when asked, output **text only** unless the user also asked to commit (see [Commit messages](#commit-messages) above).

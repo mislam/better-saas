@@ -1,10 +1,21 @@
-# README
+# SvelteKit SaaS starter
 
-SvelteKit app with TypeScript, Tailwind, Drizzle (Neon), Better Auth, and the Vercel adapter.
+SvelteKit app with TypeScript, Tailwind, Drizzle (Neon), Better Auth, and the Vercel adapter. Local Postgres runs in Docker behind the Neon proxy, so dev uses the same driver as production.
+
+Tooling is Bun-first with lint, format, hooks, and CI.
+
+## Docs
+
+| Doc                                          | Use                                                        |
+| -------------------------------------------- | ---------------------------------------------------------- |
+| [`docs/engineering.md`](docs/engineering.md) | Stack, layout, database contract                           |
+| [`docs/roadmap.md`](docs/roadmap.md)         | Active [Now](docs/roadmap.md#now), **Upcoming**, **Later** |
+| [`CHANGELOG.md`](CHANGELOG.md)               | Shipped milestones                                         |
+| [`AGENTS.md`](AGENTS.md)                     | Cursor / coding agent instructions                         |
 
 ## Requirements
 
-- [Bun](https://bun.sh) 1.4+ (see `packageManager` in `package.json`)
+- [Bun](https://bun.sh) 1.4+ (see `packageManager` in [`package.json`](package.json))
 - [Docker](https://www.docker.com/) for local Postgres and the Neon proxy
 
 ## Setup
@@ -18,75 +29,62 @@ bun dev:up
 bun db:push
 ```
 
+`bun dev` starts the Vite dev server. `bun dev:up` starts Postgres and the Neon proxy; `bun dev:down` stops them.
+
 ## Database
 
-Local dev uses the same Neon serverless stack as production: Postgres and the [Neon proxy](https://neon.com/guides/local-development-with-neon) in Docker. The app connects with `@neondatabase/serverless` **Pool** and `drizzle-orm/neon-serverless`.
+How the app and Drizzle Kit connect: [`docs/engineering.md` — Database](docs/engineering.md#database).
 
-```mermaid
-flowchart LR
-  App["App<br/>(neon-serverless Pool)"] -->|WebSocket :4444| Proxy["Neon proxy"]
-  Proxy --> DB[(Postgres :5432)]
-  Kit["Drizzle Kit"] -->|TCP| DB
-```
-
-Local `DATABASE_URL` must use host `db.localtest.me` (see `.env.example`). If you work offline or wildcard `*.localtest.me` does not resolve, add:
+Local `DATABASE_URL` must use host `db.localtest.me` (see [`.env.example`](.env.example)). If you work offline or wildcard `*.localtest.me` does not resolve, add:
 
 ```
 127.0.0.1 db.localtest.me
 ```
-
-Drizzle Kit (schema and Studio):
 
 ```sh
 bun db:push       # apply schema
 bun db:generate   # generate migrations
 bun db:migrate    # run migrations
 bun db:studio     # Drizzle Studio (uses devDependency `pg`, not the proxy)
-bun auth:schema   # Run after changing `src/lib/server/auth.ts`; then `db:push` again
+bun auth:schema   # after changing `src/lib/server/auth.ts`; then `db:push` again
 ```
+
+## Commands
+
+| Task                     | Command           |
+| ------------------------ | ----------------- |
+| Dev server               | `bun dev`         |
+| Dev + open browser       | `bun dev --open`  |
+| Production build         | `bun run build`   |
+| Preview production build | `bun preview`     |
+| Typecheck                | `bun check`       |
+| Lint + format check      | `bun lint`        |
+| Lint + format (fix)      | `bun lint:fix`    |
+| Format                   | `bun run format`  |
+| Tests (Vitest)           | `bun run test`    |
+| Apply schema             | `bun db:push`     |
+| Regenerate auth schema   | `bun auth:schema` |
+| Local DB (Docker)        | `bun dev:up`      |
+| Stop local DB            | `bun dev:down`    |
+
+`bun check` is typecheck only (`svelte-check`). Use `bun run test` — `bun test` is Bun’s runner, not Vitest.
 
 ## Git hooks
 
 [Husky](https://github.com/typicode/husky):
 
-- **pre-commit:** `lint-staged`, then `bun check`
-- **pre-push:** `lint` → `check` → `build` → `test` (see [`.husky/pre-push`](.husky/pre-push))
-- **commit-msg:** `commitlint` (conventional commits)
+- **pre-commit:** `lint-staged`, then `bun check` ([`.husky/pre-commit`](.husky/pre-commit))
+- **pre-push:** `bun lint`, `bun check`, `bun run build`, `bun run test` ([`.husky/pre-push`](.husky/pre-push))
+- **commit-msg:** `commitlint` (Conventional Commits) ([`.husky/commit-msg`](.husky/commit-msg))
 
 ## CI
 
-GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) mirrors pre-push (plus Playwright in CI).
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs `bun lint`, `bun check`, `bun run build`, and `bun run test` on push to `main` and on pull requests. CI installs Playwright Chromium before the tests.
 
-## Commands
+## AI-assisted development
 
-| Task                       | Command           |
-| -------------------------- | ----------------- |
-| Dev server                 | `bun dev`         |
-| Dev + open browser         | `bun dev --open`  |
-| Production build           | `bun run build`   |
-| Preview production build   | `bun preview`     |
-| Typecheck                  | `bun check`       |
-| Lint                       | `bun lint`        |
-| Lint + format (fix)        | `bun lint:fix`    |
-| Tests                      | `bun run test`    |
-| Drizzle push               | `bun db:push`     |
-| Better Auth Drizzle schema | `bun auth:schema` |
-| Local DB (Docker)          | `bun dev:up`      |
-| Stop local DB              | `bun dev:down`    |
+Advisory reviews in Cursor only — say **review staged** or **review branch** (see [`.cursor/rules/`](.cursor/rules/)). Hooks and CI remain the blocking gates. Details: [`AGENTS.md`](AGENTS.md).
 
-## Scaffold reference
+## Scaffold
 
-This matches how this repo was generated (see `bunx sv create --help` for add-on syntax).
-
-```sh
-bunx sv@1.3.0 create --template minimal --types ts \
-  --add prettier eslint \
-    'vitest="usages:unit,component"' tailwindcss="plugins:none" \
-    sveltekit-adapter="adapter:vercel" \
-    drizzle="database:postgresql+client:neon" \
-    better-auth="demo:password" \
-    'ai-tools="ide:cursor+tools:mcp,svelte-code-writer,svelte-core-bestpractices,svelte-file-editor+mcpSetup:remote+optInSkills:none"' \
-  --install bun .
-```
-
-More: `sv` [CLI](https://github.com/sveltejs/cli) (`bunx sv add …`).
+Generated with the Svelte CLI (`sv`). Add-ons and flags: `bunx sv create --help`, or `bunx sv add …` ([CLI](https://github.com/sveltejs/cli)).
