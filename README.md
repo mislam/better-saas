@@ -1,6 +1,6 @@
-# SvelteKit SaaS starter
+# Better SaaS
 
-SvelteKit app with TypeScript, Tailwind, Drizzle (Neon), Better Auth, and the Vercel adapter. Local Postgres runs in Docker behind the Neon proxy, so dev uses the same driver as production.
+SvelteKit app with TypeScript, Tailwind, Drizzle (Neon), Better Auth, and the Vercel adapter. Local Postgres runs in Docker behind the Neon proxy, so dev uses the same driver as production. Outbound mail goes to Mailpit locally and [Resend](https://resend.com/) in production.
 
 Tooling is Bun-first with lint, format, hooks, and CI.
 
@@ -16,7 +16,7 @@ Tooling is Bun-first with lint, format, hooks, and CI.
 ## Requirements
 
 - [Bun](https://bun.sh) 1.4+ (see `packageManager` in [`package.json`](package.json))
-- [Docker](https://www.docker.com/) for local Postgres and the Neon proxy
+- [Docker](https://www.docker.com/) for local Postgres, the Neon proxy, and Mailpit
 
 ## Setup
 
@@ -29,7 +29,17 @@ bun dev:up
 bun db:push
 ```
 
-`bun dev` starts the Vite dev server. `bun dev:up` starts Postgres and the Neon proxy; `bun dev:down` stops them.
+`bun dev` starts the Vite dev server. `bun dev:up` starts Postgres, the Neon proxy, and Mailpit; `bun dev:down` stops them.
+
+## Auth
+
+Better Auth demo (email and password): `/demo/better-auth`. Sign-up does not create a session — open the verification link, then sign in. Password reset follows the same pattern (request a link, then set a new password on the reset page). Social providers are configured separately in [`src/lib/server/auth.ts`](src/lib/server/auth.ts). Details: [`docs/engineering.md` — Auth](docs/engineering.md#auth).
+
+## Email
+
+Local mail is captured by [Mailpit](https://mailpit.axllent.org/) (`bun dev:up`): SMTP `localhost:1025`, web UI [http://localhost:8025](http://localhost:8025). Those ports are also used by other local projects; stop the other Mailpit if `bun dev:up` cannot bind them.
+
+Production sends through Resend. Set `RESEND_API_KEY` and an `EMAIL_FROM` address on a domain verified in Resend. Leave `SMTP_HOST` unset there. If both are set, Resend is used. Names and comments: [`.env.example`](.env.example).
 
 ## Database
 
@@ -53,6 +63,8 @@ bun auth:schema   # after changing `src/lib/server/auth.ts`; then `db:push` agai
 
 | Task                     | Command           |
 | ------------------------ | ----------------- |
+| Start docker containers  | `bun dev:up`      |
+| Stop docker containers   | `bun dev:down`    |
 | Dev server               | `bun dev`         |
 | Dev + open browser       | `bun dev --open`  |
 | Production build         | `bun run build`   |
@@ -64,8 +76,6 @@ bun auth:schema   # after changing `src/lib/server/auth.ts`; then `db:push` agai
 | Tests (Vitest)           | `bun run test`    |
 | Apply schema             | `bun db:push`     |
 | Regenerate auth schema   | `bun auth:schema` |
-| Local DB (Docker)        | `bun dev:up`      |
-| Stop local DB            | `bun dev:down`    |
 
 `bun check` is typecheck only (`svelte-check`). Use `bun run test` — `bun test` is Bun’s runner, not Vitest.
 
@@ -84,7 +94,3 @@ bun auth:schema   # after changing `src/lib/server/auth.ts`; then `db:push` agai
 ## AI-assisted development
 
 Advisory reviews in Cursor only — say **review staged** or **review branch** (see [`.cursor/rules/`](.cursor/rules/)). Hooks and CI remain the blocking gates. Details: [`AGENTS.md`](AGENTS.md).
-
-## Scaffold
-
-Generated with the Svelte CLI (`sv`). Add-ons and flags: `bunx sv create --help`, or `bunx sv add …` ([CLI](https://github.com/sveltejs/cli)).

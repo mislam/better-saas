@@ -3,14 +3,28 @@ import { APIError } from "better-auth/api"
 
 import { auth } from "#lib/server/auth.ts"
 
-import type { Actions } from "./$types"
-import type { PageServerLoad } from "./$types"
+import type { Actions, PageServerLoad } from "./$types"
+
+const verifiedPath = "/demo/better-auth/verified"
+const resetPath = "/demo/better-auth/reset-password"
+
+const checkEmail = "Check your email for a verification link."
+const resetSent = "If an account exists for that email, we sent a reset link."
+const verifyFirst = "Verify your email before signing in. We sent another link."
 
 export const load: PageServerLoad = (event) => {
 	if (event.locals.user) {
 		return redirect(302, "/demo/better-auth")
 	}
 	return {}
+}
+
+function actionError(error: unknown, fallback: string) {
+	if (error instanceof APIError) {
+		if (error.statusCode === 403) return fail(403, { message: verifyFirst })
+		return fail(error.statusCode, { message: error.message || fallback })
+	}
+	return fail(500, { message: "Unexpected error" })
 }
 
 export const actions: Actions = {
@@ -24,14 +38,11 @@ export const actions: Actions = {
 				body: {
 					email,
 					password,
-					callbackURL: "/auth/verification-success",
+					callbackURL: verifiedPath,
 				},
 			})
 		} catch (error) {
-			if (error instanceof APIError) {
-				return fail(400, { message: error.message || "Signin failed" })
-			}
-			return fail(500, { message: "Unexpected error" })
+			return actionError(error, "Signin failed")
 		}
 
 		return redirect(302, "/demo/better-auth")
@@ -48,16 +59,30 @@ export const actions: Actions = {
 					email,
 					password,
 					name,
-					callbackURL: "/auth/verification-success",
+					callbackURL: verifiedPath,
 				},
 			})
 		} catch (error) {
-			if (error instanceof APIError) {
-				return fail(400, { message: error.message || "Registration failed" })
-			}
-			return fail(500, { message: "Unexpected error" })
+			return actionError(error, "Registration failed")
 		}
 
-		return redirect(302, "/demo/better-auth")
+		return { ok: true, message: checkEmail }
+	},
+	requestPasswordReset: async (event) => {
+		const formData = await event.request.formData()
+		const email = formData.get("email")?.toString() ?? ""
+
+		try {
+			await auth.api.requestPasswordReset({
+				body: {
+					email,
+					redirectTo: resetPath,
+				},
+			})
+		} catch (error) {
+			return actionError(error, "Could not send a reset link")
+		}
+
+		return { ok: true, message: resetSent }
 	},
 }
