@@ -7,12 +7,12 @@ alwaysApply: true
 
 ## Tooling
 
-- Package manager: **Bun** ([`packageManager`](package.json) in `package.json`)
-- Format: `bun run format` (Prettier — tabs, no semis, double quotes, trailing commas, 100 cols)
-- Lint: `bun lint` / `bun lint:fix` (ESLint + import sort + Prettier check)
-- Types: `bun check` (`svelte-check` only — lint and tests are separate)
-- Tests: `bun run test` (Vitest). `bun test` is Bun’s runner
-- Build: `bun run build`
+- Package manager: **pnpm** (lockfile and CI). `npm install` also works. Node `>=22` ([`engines`](package.json) in `package.json`)
+- Format: `pnpm run format` (Prettier — tabs, no semis, double quotes, trailing commas, 100 cols)
+- Lint: `pnpm lint` / `pnpm lint:fix` (ESLint + import sort + Prettier check)
+- Types: `pnpm check` (`svelte-check` only — lint and tests are separate)
+- Tests: `pnpm test` (Vitest, Node)
+- Build: `pnpm run build`
 - Do not hand-format differently from Prettier/ESLint output
 
 ## Paths and file names

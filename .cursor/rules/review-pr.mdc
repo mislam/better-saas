@@ -23,7 +23,7 @@ Merge gate. **Same five criteria** and the same **Before the glance** / **Glance
 
 ## Merge-only
 
-1. **CI** — Same as [`.github/workflows/ci.yml`](.github/workflows/ci.yml): `bun lint`, `bun check`, `bun run build`, and `bun run test` when the branch touches app code, config, lockfile, or CI. **🔴** if any fails. Docs-only or rules-only: note that gates were skipped.
+1. **CI** — Same as [`.github/workflows/ci.yml`](.github/workflows/ci.yml): `pnpm lint`, `pnpm check`, `pnpm run build`, and `pnpm test` when the branch touches app code, config, lockfile, or CI. **🔴** if any fails. Docs-only or rules-only: note that gates were skipped.
 2. **Breaking changes** — Route paths, auth or session shape, env vars, or schema that a deployed app would not understand. Call out under impact and risk.
 3. **Milestone ship** — If the branch completes every **Now** checkbox, follow [`changelog.mdc`](changelog.mdc). Shipped behavior with an open **Now** box is a merge **🔴**.
 

@@ -19,13 +19,13 @@ Same five, scoped to **this commit** (staged), not the whole branch. Branch-wide
 
 1. **Correctness** — Session ask + **Now**; regressions; partial delivery or drift. Intended behavior goes in **Summary** only.
 2. **Design fit** — Fits SvelteKit routes, `src/lib/server/`, and [`docs/engineering.md`](docs/engineering.md) (Neon Pool, Better Auth, Drizzle). No dead code or leftovers.
-3. **Test quality** — Behavior proved where practical (`bun run test`), or a short reason tests are deferred.
+3. **Test quality** — Behavior proved where practical (`pnpm test`), or a short reason tests are deferred.
 4. **Impact & risk** — Auth, env, `DATABASE_URL`, sessions, Vercel adapter. Secrets in the diff are a blocker.
 5. **Scope & clarity** — One focused commit. Docs decision: update, or leave because existing docs already match. All **Now** boxes `[x]` but no changelog ship → **🔴** ([`changelog.mdc`](changelog.mdc)).
 
 ## Also
 
-- **Tooling** — When the staged diff touches `src/`, `vite.config.ts`, `package.json`, the lockfile, or CI: run `bun check` (types). Run `bun lint` when style or lint config changed. Run `bun run test` when behavior or tests changed. Run `bun run build` when SvelteKit, Vite, or adapter config changed. **🔴** if a required gate still fails. Docs-only or rules-only: one line that gates were skipped. No `git add` after fixes.
+- **Tooling** — When the staged diff touches `src/`, `vite.config.ts`, `package.json`, the lockfile, or CI: run `pnpm check` (types). Run `pnpm lint` when style or lint config changed. Run `pnpm test` when behavior or tests changed. Run `pnpm run build` when SvelteKit, Vite, or adapter config changed. **🔴** if a required gate still fails. Docs-only or rules-only: one line that gates were skipped. No `git add` after fixes.
 - **Docs** — Update [`README.md`](README.md), [`docs/roadmap.md`](docs/roadmap.md) (**Now**), or [`docs/engineering.md`](docs/engineering.md) when setup or those contracts would mislead. Leave them when already aligned.
 - **Commit message** — when no criterion is **🔴**, suggest one per [`conventions.mdc`](conventions.mdc). Read recent bodies with `git log`, not subjects alone. If not ready, say why.
 

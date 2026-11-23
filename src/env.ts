@@ -2,7 +2,8 @@ import { defineEnvVars } from "@sveltejs/kit/env"
 
 export const variables = defineEnvVars({
 	DATABASE_URL: {
-		description: "PostgreSQL connection URL (Drizzle and the Neon Pool).",
+		description:
+			"PostgreSQL connection URL. Local default is Postgres 16+ on localhost. A host ending in .neon.tech, or db.localtest.me, uses the Neon serverless driver. Any other host uses node-postgres.",
 		schema: (value) => {
 			if (!value) throw new Error("DATABASE_URL is not set")
 			if (!/^postgres(ql)?:\/\//.test(value)) {
@@ -26,12 +27,12 @@ export const variables = defineEnvVars({
 	},
 	BETTER_AUTH_SECRET: {
 		description:
-			"Secret for Better Auth encryption and signing. At least 32 characters. Run `bun auth:secret --write` for a 64-character value. See [Better Auth installation](https://www.better-auth.com/docs/installation).",
+			"Secret for Better Auth encryption and signing. At least 32 characters. Run `pnpm auth:secret --write` for a 64-character value. See [Better Auth installation](https://www.better-auth.com/docs/installation).",
 		schema: (value) => {
 			if (!value) throw new Error("BETTER_AUTH_SECRET is not set")
 			if (value.length < 32) {
 				throw new Error(
-					"BETTER_AUTH_SECRET must be at least 32 characters (run: bun auth:secret --write)",
+					"BETTER_AUTH_SECRET must be at least 32 characters (run: pnpm auth:secret --write)",
 				)
 			}
 			return value
@@ -47,12 +48,12 @@ export const variables = defineEnvVars({
 	},
 	RESEND_API_KEY: {
 		description:
-			"Resend API key. When set, mail is sent through Resend. Leave empty locally to use SMTP.",
+			"Resend API key. When set, mail is sent through Resend. Leave empty when mail is not configured.",
 		schema: (value) => value || undefined,
 	},
 	SMTP_HOST: {
 		description:
-			"SMTP host. Local Mailpit is localhost. Leave unset in production when RESEND_API_KEY is set.",
+			"SMTP host. Leave empty when mail is not configured. Optional Mailpit is localhost. Leave unset in production when RESEND_API_KEY is set.",
 		schema: (value) => value || undefined,
 	},
 	SMTP_PORT: {

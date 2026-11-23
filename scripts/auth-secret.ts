@@ -1,9 +1,8 @@
-#!/usr/bin/env bun
 /**
  * Generates a Better Auth secret (64 base62 chars: 0-9, a-z, A-Z — no + / =).
  *
- * `bun auth:secret` — print to stdout.
- * `bun auth:secret --write` — set `BETTER_AUTH_SECRET` in `.env` when empty.
+ * `pnpm auth:secret` — print to stdout.
+ * `pnpm auth:secret --write` — set `BETTER_AUTH_SECRET` in `.env` when empty.
  */
 import { randomBytes } from "node:crypto"
 import { existsSync, readFileSync, writeFileSync } from "node:fs"

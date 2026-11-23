@@ -1,8 +1,8 @@
 # Better SaaS
 
-SvelteKit app with TypeScript, Tailwind, Drizzle (Neon), Better Auth, and the Vercel adapter. Local Postgres runs in Docker behind the Neon proxy, so dev uses the same driver as production. Outbound mail goes to Mailpit locally and [Resend](https://resend.com/) in production.
+SvelteKit app with TypeScript, Tailwind, Drizzle, Better Auth, and the Vercel adapter. Local development uses node-postgres against Postgres 16 or newer. A Neon host, and the optional local Neon proxy, keep the Neon serverless driver. Outbound mail goes through [Resend](https://resend.com/) in production. [Mailpit](https://mailpit.axllent.org/) is an optional local inbox.
 
-Tooling is Bun-first with lint, format, hooks, and CI.
+Tooling is pnpm with lint, format, hooks, and CI. `npm install` also works. Bun is not required.
 
 ## Docs
 
@@ -15,21 +15,21 @@ Tooling is Bun-first with lint, format, hooks, and CI.
 
 ## Requirements
 
-- [Bun](https://bun.sh) 1.4+ (see `packageManager` in [`package.json`](package.json))
-- [Docker](https://www.docker.com/) for local Postgres, the Neon proxy, and Mailpit
+- [Node.js](https://nodejs.org/) 22+
+- [pnpm](https://pnpm.io/) 10 (npm 10 also installs)
+- PostgreSQL 16+ for local development, or any hosted Postgres URL
 
 ## Setup
 
 ```sh
-bun install
+pnpm install
 cp .env.example .env
-bun auth:secret --write
-bunx playwright install chromium
-bun dev:up
-bun db:push
+pnpm auth:secret --write
 ```
 
-`bun dev` starts the Vite dev server. `bun dev:up` starts Postgres, the Neon proxy, and Mailpit; `bun dev:down` stops them.
+`pnpm dev` starts the Vite dev server. `pnpm db:push` needs a Postgres server that is already accepting `DATABASE_URL`. The example URL is role `postgres`, password `postgres`, database `main`, on `localhost:5432`. Create that database first. Optional Compose (`pnpm dev:up`) starts a server with those values. A Postgres you run yourself has to match the URL, or change the URL to match the server. If the connection fails, `pnpm db:push` prints the database error.
+
+`npm install` completes as well. CI and the lockfile use pnpm, so commit, push, and GitHub Actions need pnpm on the machine.
 
 ## Auth
 
@@ -37,59 +37,70 @@ Better Auth demo (email and password): `/demo/better-auth`. Sign-up does not cre
 
 ## Email
 
-Local mail is captured by [Mailpit](https://mailpit.axllent.org/) (`bun dev:up`): SMTP `localhost:1025`, web UI [http://localhost:8025](http://localhost:8025). Those ports are also used by other local projects; stop the other Mailpit if `bun dev:up` cannot bind them.
+Leave `RESEND_API_KEY` and `SMTP_HOST` empty when you are not sending mail. Sign-up and password reset call the sender only when a message is sent. With neither value set, that send throws.
 
-Production sends through Resend. Set `RESEND_API_KEY` and an `EMAIL_FROM` address on a domain verified in Resend. Leave `SMTP_HOST` unset there. If both are set, Resend is used. Names and comments: [`.env.example`](.env.example).
+Production sends through Resend. Set `RESEND_API_KEY` and an `EMAIL_FROM` address on a domain verified in Resend. Leave `SMTP_HOST` unset there. If both are set, Resend is used.
+
+Mailpit is an optional Compose service for reading local mail. It is not part of install or the test run. If you start it, set `SMTP_HOST=localhost` and `SMTP_PORT=1025`. The web UI is [http://localhost:8025](http://localhost:8025). Those ports are also used by other local projects. Names and comments: [`.env.example`](.env.example).
 
 ## Database
 
 How the app and Drizzle Kit connect: [`docs/engineering.md` — Database](docs/engineering.md#database).
 
-Local `DATABASE_URL` must use host `db.localtest.me` (see [`.env.example`](.env.example)). If you work offline or wildcard `*.localtest.me` does not resolve, add:
+The default `DATABASE_URL` is `localhost`. Postgres 16 or newer is enough, and it has to be running before `pnpm db:push`. Create the database named in that URL first.
 
-```
-127.0.0.1 db.localtest.me
-```
+A host ending in `.neon.tech` uses the Neon serverless driver, including a Neon connection string in production. The optional Compose stack (Postgres, the Neon proxy, and Mailpit) uses `db.localtest.me` for that same driver locally. Setup does not require Compose.
 
 ```sh
-bun db:push       # apply schema
-bun db:generate   # generate migrations
-bun db:migrate    # run migrations
-bun db:studio     # Drizzle Studio (uses devDependency `pg`, not the proxy)
-bun auth:schema   # after changing `src/lib/server/auth.ts`; then `db:push` again
+pnpm db:push       # apply schema
+pnpm db:generate   # generate migrations
+pnpm db:migrate    # run migrations
+pnpm db:studio     # Drizzle Studio
+pnpm auth:schema   # after changing `src/lib/server/auth.ts`; then `db:push` again
 ```
+
+## Optional Compose
+
+[`compose.yaml`](compose.yaml) can start Postgres, the Neon proxy, and Mailpit for anyone who wants them. The required setup never runs it.
+
+```sh
+pnpm dev:up     # start the optional containers
+pnpm dev:down   # stop them
+```
+
+For the Neon driver locally, point `DATABASE_URL` at `db.localtest.me` as commented in [`.env.example`](.env.example). If that name does not resolve, add `127.0.0.1 db.localtest.me` to your hosts file.
 
 ## Commands
 
-| Task                     | Command           |
-| ------------------------ | ----------------- |
-| Start docker containers  | `bun dev:up`      |
-| Stop docker containers   | `bun dev:down`    |
-| Dev server               | `bun dev`         |
-| Dev + open browser       | `bun dev --open`  |
-| Production build         | `bun run build`   |
-| Preview production build | `bun preview`     |
-| Typecheck                | `bun check`       |
-| Lint + format check      | `bun lint`        |
-| Lint + format (fix)      | `bun lint:fix`    |
-| Format                   | `bun run format`  |
-| Tests (Vitest)           | `bun run test`    |
-| Apply schema             | `bun db:push`     |
-| Regenerate auth schema   | `bun auth:schema` |
+| Task                      | Command            |
+| ------------------------- | ------------------ |
+| Dev server                | `pnpm dev`         |
+| Dev + open browser        | `pnpm dev --open`  |
+| Production build          | `pnpm run build`   |
+| Preview production build  | `pnpm preview`     |
+| Typecheck                 | `pnpm check`       |
+| Lint + format check       | `pnpm lint`        |
+| Lint + format (fix)       | `pnpm lint:fix`    |
+| Format                    | `pnpm run format`  |
+| Tests (Vitest)            | `pnpm test`        |
+| Apply schema              | `pnpm db:push`     |
+| Regenerate auth schema    | `pnpm auth:schema` |
+| Start optional containers | `pnpm dev:up`      |
+| Stop optional containers  | `pnpm dev:down`    |
 
-`bun check` is typecheck only (`svelte-check`). Use `bun run test` — `bun test` is Bun’s runner, not Vitest.
+`pnpm check` is typecheck only (`svelte-check`). `pnpm test` runs Vitest in Node. It does not need Postgres, Mailpit, or a browser.
 
 ## Git hooks
 
-[Husky](https://github.com/typicode/husky):
+[Husky](https://github.com/typicode/husky) installs from the `prepare` script. Hooks call pnpm:
 
-- **pre-commit:** `lint-staged`, then `bun check` ([`.husky/pre-commit`](.husky/pre-commit))
-- **pre-push:** `bun lint`, `bun check`, `bun run build`, `bun run test` ([`.husky/pre-push`](.husky/pre-push))
+- **pre-commit:** `lint-staged`, then `pnpm check` ([`.husky/pre-commit`](.husky/pre-commit))
+- **pre-push:** `pnpm lint`, `pnpm check`, `pnpm run build`, `pnpm test` ([`.husky/pre-push`](.husky/pre-push))
 - **commit-msg:** `commitlint` (Conventional Commits) ([`.husky/commit-msg`](.husky/commit-msg))
 
 ## CI
 
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs `bun lint`, `bun check`, `bun run build`, and `bun run test` on push to `main` and on pull requests. CI installs Playwright Chromium before the tests.
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs `pnpm lint`, `pnpm check`, `pnpm run build`, and `pnpm test` on push to `main` and on pull requests.
 
 ## AI-assisted development
 

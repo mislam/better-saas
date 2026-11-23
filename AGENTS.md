@@ -16,10 +16,10 @@ What this repo is: [`README.md`](README.md). Follow that. Keep work scoped to [*
 
 - **Git:** **read-only always** for agents — no `git add`, `git restore`, `git commit`, etc. unless the user explicitly requests that command in the current message. Staging is manual. Details: [`.cursor/rules/conventions.mdc`](.cursor/rules/conventions.mdc)
 - **Secrets:** never read `.env` unless asked; prefer `.env.example`
-- **Tests:** `bun run test` (Vitest). `bun test` is Bun’s runner
-- **Blocking gates:** pre-commit (`lint-staged` + `bun check`), pre-push (`bun lint`, `bun check`, `bun run build`, `bun run test`), commitlint, CI `lint` + `check` + `build` + `test` — [README](README.md) ([Commands](README.md#commands), [Git hooks](README.md#git-hooks), [CI](README.md#ci))
+- **Tests:** `pnpm test` (Vitest, Node). It does not need Postgres, Mailpit, or a browser
+- **Blocking gates:** pre-commit (`lint-staged` + `pnpm check`), pre-push (`pnpm lint`, `pnpm check`, `pnpm run build`, `pnpm test`), commitlint, CI `lint` + `check` + `build` + `test` — [README](README.md) ([Commands](README.md#commands), [Git hooks](README.md#git-hooks), [CI](README.md#ci))
 
-`bun check` is typecheck only. Lint and format are `bun lint` / `bun lint:fix`.
+`pnpm check` is typecheck only. Lint and format are `pnpm lint` / `pnpm lint:fix`. Hooks and CI call pnpm.
 
 ## Reviews (advisory — not a git hook)
 

@@ -1,2 +1,2 @@
-bunx lint-staged
-bun check
+pnpm exec lint-staged
+pnpm check

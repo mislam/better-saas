@@ -8,11 +8,18 @@ One milestone per PR; do not ship work past **Now** while that milestone is open
 
 ## Now
 
-No open milestone.
+### Local setup without Bun or Docker
+
+- [ ] pnpm install is the CI install, and npm install succeeds
+- [ ] Default local connection is `pg` to localhost; Neon serverless stays for Neon hosts and the optional proxy
+- [ ] Lint, typecheck, build, and unit tests pass with no Docker, no Mailpit, no Bun, and no browser
+- [ ] README describes that path, and Compose is labeled optional
 
 ## Upcoming
 
-_(none)_
+1. An account can create an organization and see its members.
+2. An organization owner can invite a member by email, using the existing mail sender.
+3. A signed-in home replaces the auth demo as the place daily work happens.
 
 ## Later
 

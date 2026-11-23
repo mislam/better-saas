@@ -1,4 +1,4 @@
-bun lint
-bun check
-bun run build
-bun run test
+pnpm lint
+pnpm check
+pnpm run build
+pnpm test
