@@ -20,7 +20,7 @@ What this repo is: [`README.md`](../README.md). Setup, commands, hooks, and CI l
 
 | Path                     | Role                                                                                                 |
 | ------------------------ | ---------------------------------------------------------------------------------------------------- |
-| `src/routes/`            | SvelteKit routes. `+layout.svelte`, `/`, and the Better Auth demo under `demo/better-auth/`          |
+| `src/routes/`            | SvelteKit routes. `+layout.svelte`, `/`, `/login`, `/account`, `/verify-email`, `/reset-password`    |
 | `src/lib/`               | Shared modules safe to import from the client. Alias `#lib`                                          |
 | `src/lib/server/`        | Server-only modules                                                                                  |
 | `src/lib/server/auth.ts` | Better Auth instance (`APP_URL`, `BETTER_AUTH_SECRET`, Drizzle adapter, verification and reset mail) |
@@ -61,7 +61,7 @@ Schema lives in [`src/lib/server/db/schema.ts`](../src/lib/server/db/schema.ts),
 
 Better Auth is configured in [`src/lib/server/auth.ts`](../src/lib/server/auth.ts). [`src/hooks.server.ts`](../src/hooks.server.ts) attaches the session to `locals`. `APP_URL` must match the origin in the browser (cookies and CSRF). Generate `BETTER_AUTH_SECRET` with `pnpm auth:secret --write`. Names and comments: [`.env.example`](../.env.example). Leave `.env` unread unless the user asks.
 
-Email and password sign-in requires a verified address (`emailAndPassword.requireEmailVerification`). That gate does not apply to social sign-in; each OAuth provider can opt in to its own `requireEmailVerification` later. Sign-up, an unverified credential sign-in, password reset, and a repeat sign-up for an existing address all call [`sendEmail`](../src/lib/server/email/send-email.ts) without awaiting it. That function passes the send to `waitUntil` from `@vercel/functions` so the Vercel function stays alive until delivery finishes. `RESEND_API_KEY` selects Resend; otherwise `SMTP_HOST` selects SMTP. With neither set, `sendEmail` prints the verification or reset link in the server log. Optional Mailpit is `localhost:1025`. The demo pages under `demo/better-auth/` are the verification and reset UI. Local inbox: [README.md — Email](../README.md#email).
+Email and password sign-in requires a verified address (`emailAndPassword.requireEmailVerification`). That gate does not apply to social sign-in; each OAuth provider can opt in to its own `requireEmailVerification` later. Sign-up, an unverified credential sign-in, password reset, and a repeat sign-up for an existing address all call [`sendEmail`](../src/lib/server/email/send-email.ts) without awaiting it. That function passes the send to `waitUntil` from `@vercel/functions` so the Vercel function stays alive until delivery finishes. `RESEND_API_KEY` selects Resend; otherwise `SMTP_HOST` selects SMTP. With neither set, `sendEmail` prints the verification or reset link in the server log. Optional Mailpit is `localhost:1025`. Verification is `/verify-email`. Password reset is `/reset-password`. Local inbox: [README.md — Email](../README.md#email).
 
 ## Tests
 

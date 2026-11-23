@@ -7,7 +7,7 @@ import type { PageServerLoad } from "./$types"
 
 export const load: PageServerLoad = (event) => {
 	if (!event.locals.user) {
-		return redirect(302, "/demo/better-auth/login")
+		return redirect(302, "/login")
 	}
 	return { user: event.locals.user }
 }
@@ -17,6 +17,6 @@ export const actions: Actions = {
 		await auth.api.signOut({
 			headers: event.request.headers,
 		})
-		return redirect(302, "/demo/better-auth/login")
+		return redirect(302, "/login")
 	},
 }

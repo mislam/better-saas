@@ -6,8 +6,8 @@ import { databaseHint, describeError } from "#lib/server/db/describe-error.ts"
 
 import type { Actions, PageServerLoad } from "./$types"
 
-const verifiedPath = "/demo/better-auth/verified"
-const resetPath = "/demo/better-auth/reset-password"
+const verifiedPath = "/verify-email?verified=1"
+const resetPath = "/reset-password"
 
 const checkEmail = "Check your email for a verification link."
 const resetSent = "If an account exists for that email, we sent a reset link."
@@ -15,7 +15,7 @@ const verifyFirst = "Verify your email before signing in. We sent another link."
 
 export const load: PageServerLoad = (event) => {
 	if (event.locals.user) {
-		return redirect(302, "/demo/better-auth")
+		return redirect(302, "/account")
 	}
 	return {}
 }
@@ -52,7 +52,7 @@ export const actions: Actions = {
 			return actionError(error, "Signin failed")
 		}
 
-		return redirect(302, "/demo/better-auth")
+		return redirect(302, "/account")
 	},
 	signUpEmail: async (event) => {
 		const formData = await event.request.formData()

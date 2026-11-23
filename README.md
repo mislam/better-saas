@@ -33,7 +33,7 @@ pnpm auth:secret --write
 
 ## Auth
 
-Better Auth demo (email and password): `/demo/better-auth`. Sign-up does not create a session — open the verification link, then sign in. Password reset follows the same pattern (request a link, then set a new password on the reset page). Social providers are configured separately in [`src/lib/server/auth.ts`](src/lib/server/auth.ts). Details: [`docs/engineering.md` — Auth](docs/engineering.md#auth).
+Sign in at `/login`. A signed-in account is at `/account`. Sign-up does not create a session — open the verification link, then sign in. Password reset follows the same pattern (request a link, then set a new password on the reset page). Social providers are configured separately in [`src/lib/server/auth.ts`](src/lib/server/auth.ts). Details: [`docs/engineering.md` — Auth](docs/engineering.md#auth).
 
 ## Email
 
