@@ -27,7 +27,7 @@ cp .env.example .env
 pnpm auth:secret --write
 ```
 
-`pnpm dev` starts the Vite dev server. `pnpm db:push` needs a Postgres server that is already accepting `DATABASE_URL`. The example URL is role `postgres`, password `postgres`, database `main`, on `localhost:5432`. Create that database first. Optional Compose (`pnpm dev:up`) starts a server with those values. A Postgres you run yourself has to match the URL, or change the URL to match the server. If the connection fails, `pnpm db:push` prints the database error.
+`pnpm dev` starts the Vite dev server. `pnpm db:push` needs a Postgres server that is already accepting `DATABASE_URL`. The example URL is user `postgres`, password `postgres`, database `main`, on `localhost:5432`. Create that database first. Optional Compose (`pnpm dev:up`) starts a server with those values. A Postgres you run yourself has to match the URL, or change the URL to match the server. If the connection fails, `pnpm db:push` prints the database error.
 
 `npm install` completes as well. CI and the lockfile use pnpm, so commit, push, and GitHub Actions need pnpm on the machine.
 
@@ -37,7 +37,7 @@ Better Auth demo (email and password): `/demo/better-auth`. Sign-up does not cre
 
 ## Email
 
-Leave `RESEND_API_KEY` and `SMTP_HOST` empty when you are not sending mail. Sign-up and password reset call the sender only when a message is sent. With neither value set, that send throws.
+Leave `RESEND_API_KEY` and `SMTP_HOST` empty when you are not sending mail. Sign-up and password reset still require the link. With neither value set, that link is printed in the dev server log.
 
 Production sends through Resend. Set `RESEND_API_KEY` and an `EMAIL_FROM` address on a domain verified in Resend. Leave `SMTP_HOST` unset there. If both are set, Resend is used.
 

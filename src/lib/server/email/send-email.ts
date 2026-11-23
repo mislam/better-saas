@@ -4,7 +4,7 @@ import { Resend } from "resend"
 
 import { EMAIL_FROM, RESEND_API_KEY, SMTP_HOST, SMTP_PORT } from "$app/env/private"
 
-import { selectTransport } from "./transport.ts"
+import { planDelivery } from "./transport.ts"
 
 export type SendEmailParams = {
 	to: string
@@ -15,10 +15,23 @@ export type SendEmailParams = {
 
 const DEFAULT_SMTP_PORT = 1025
 
+function logUnconfigured(link: string | undefined): void {
+	console.info(
+		link
+			? `Email transport is not configured. Open this link:\n${link}`
+			: "Email transport is not configured (set RESEND_API_KEY or SMTP_HOST).",
+	)
+}
+
 async function deliver(params: SendEmailParams): Promise<void> {
 	const resendApiKey = RESEND_API_KEY
 	const smtpHost = SMTP_HOST
-	const transport = selectTransport({ resendApiKey, smtpHost })
+	const plan = planDelivery({ resendApiKey, smtpHost }, params.text)
+	if (plan.kind === "log") {
+		logUnconfigured(plan.link)
+		return
+	}
+	const transport = plan.transport
 
 	if (transport === "resend") {
 		if (!resendApiKey) throw new Error("RESEND_API_KEY is not set")

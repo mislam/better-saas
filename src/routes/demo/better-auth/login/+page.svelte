@@ -60,5 +60,6 @@
 	<p class="text-red-500">{form.message}</p>
 {/if}
 <p>
-	Read local mail in <a href="http://localhost:8025">Mailpit.</a>
+	With no mail configured, the verification or reset link is printed in the dev server log. Mailpit,
+	when running, shows it at <a href="http://localhost:8025">localhost:8025.</a>
 </p>

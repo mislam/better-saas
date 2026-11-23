@@ -2,6 +2,7 @@ import { fail } from "@sveltejs/kit"
 import { APIError } from "better-auth/api"
 
 import { auth } from "#lib/server/auth.ts"
+import { databaseHint, describeError } from "#lib/server/db/describe-error.ts"
 
 import type { Actions, PageServerLoad } from "./$types"
 
@@ -23,10 +24,15 @@ export const actions: Actions = {
 				body: { newPassword, token },
 			})
 		} catch (error) {
+			const detail = describeError(error)
+			const hint = databaseHint(error)
+			console.error(detail || "Reset failed")
+			if (hint) console.error(hint)
 			if (error instanceof APIError) {
 				return fail(error.statusCode, { message: error.message || "Reset failed" })
 			}
-			return fail(500, { message: "Unexpected error" })
+			if (hint) return fail(500, { message: `${detail} ${hint}` })
+			return fail(500, { message: detail || "Reset failed" })
 		}
 
 		return { ok: true, message: "Password updated. You can sign in." }

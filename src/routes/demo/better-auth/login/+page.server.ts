@@ -2,6 +2,7 @@ import { fail, redirect } from "@sveltejs/kit"
 import { APIError } from "better-auth/api"
 
 import { auth } from "#lib/server/auth.ts"
+import { databaseHint, describeError } from "#lib/server/db/describe-error.ts"
 
 import type { Actions, PageServerLoad } from "./$types"
 
@@ -20,11 +21,17 @@ export const load: PageServerLoad = (event) => {
 }
 
 function actionError(error: unknown, fallback: string) {
+	const detail = describeError(error)
+	const hint = databaseHint(error)
+	console.error(detail || fallback)
+	if (hint) console.error(hint)
+
 	if (error instanceof APIError) {
 		if (error.statusCode === 403) return fail(403, { message: verifyFirst })
 		return fail(error.statusCode, { message: error.message || fallback })
 	}
-	return fail(500, { message: "Unexpected error" })
+	if (hint) return fail(500, { message: `${detail} ${hint}` })
+	return fail(500, { message: detail || fallback })
 }
 
 export const actions: Actions = {
